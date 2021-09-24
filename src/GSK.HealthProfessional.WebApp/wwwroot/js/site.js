@@ -17,7 +17,7 @@ function pad(str, max) {
 }
 
 var checkBtnSubmit = function () {
-
+    debugger;
     if ($('#AcceptsTermUse').prop('checked') == true && captchaValue.length > 50) {
         $('#btnSubmit').removeAttr('disabled');
         $('#btnSubmit').removeClass('disabled');
@@ -154,24 +154,6 @@ $(document).ready(function () {
 
     $('form').submit(function () {
         var hasError = false 
-
-
-        if ($('#CompanyId').val() == '' || $('#CompanyId').val() == null) {            
-            $('#CompanyId-error').show()
-            hasError =  true;
-        }
-        if ($('#OccupationAreaClientUniqueIdentifier').val() == '' || $('#OccupationAreaClientUniqueIdentifier').val() == null) {            
-            $('#OccupationAreaClientUniqueIdentifier-error').show()
-            hasError = true;
-        }
-        if ($('#CityId').val() == '' || $('#CityId').val() == null) {
-            $('#CityId-error').show()
-            hasError = true;;
-        }
-        if ($('#StateId').val() == '' || $('#StateId').val() == null) {
-            $('#StateId-error').show()
-            hasError = true;
-        }
 
         if (hasError)
             return false;

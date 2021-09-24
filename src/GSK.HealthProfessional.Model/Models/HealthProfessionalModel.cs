@@ -33,52 +33,6 @@ namespace GSK.HealthProfessional.Model
         [StringLength(200)]
         [Compare("Email", ErrorMessage = "O campo E-mail e Redigitar E-mail não combinam.")]
         public string RedigitarEmail { get; set; }
-
-        [Required(ErrorMessage = "Campo obrigatório")]
-        [DisplayName("Perfil")]        
-        public string OccupationAreaClientUniqueIdentifier { get; set; }        
-        
-        [ForeignKey("OccupationAreaClientUniqueIdentifier")]        
-        public virtual OccupationAreaModel OccupationArea { get; set; }
-        
-        [Required(ErrorMessage = "Campo obrigatório")]
-        [DisplayName("Cidade")]
-        public string CityId { get; set; }
-        
-        [ForeignKey("CityId")]
-        public virtual CityModel City { get; set; }
-                
-        public string CityDescription { get; set; }
-        public string StateDescription { get; set; }
-
-        [Required(ErrorMessage = "Campo obrigatório")]
-        [DisplayName("Estado")]
-        public string StateId { get; set; }
-      
-        [ForeignKey("StateId")]
-        public virtual StateModel State { get; set; }
-
-        [Required(ErrorMessage = "Campo obrigatório")]
-        [DisplayName("Empresa")]
-        [StringLength(200)]
-        public string CompanyId { get; set; }
-        public virtual CompanyModel Company { get; set; }
-
-        [Required(ErrorMessage = "Campo obrigatório")]
-        [DisplayName("Nome da empresa")]
-        [StringLength(200)]
-        public string CompanyDescription { get; set; }
-
-
-        [Required(ErrorMessage = "Campo obrigatório")]
-        [DisplayName("Número do conselho")]
-        [StringLength(200)]
-        public string CouncilNumber { get; set; }
-        
-
-        [Required(ErrorMessage = "Campo obrigatório")]
-        [DisplayName("Celular (DDD) + telefone")]              
-        public string Phone { get; set; }
         
         [DisplayName("Senha")]
         [Required(ErrorMessage = "Campo obrigatório")]
@@ -92,20 +46,16 @@ namespace GSK.HealthProfessional.Model
         [Compare("Password", ErrorMessage="O campo senha e confirmação de senha não combinam.")]
         public string PasswordConfirmation { get; set; }
         
-        [DisplayName("Aceito receber informações sobre produtos, campanhas, artigos e eventos da GSK.")]        
-        public bool EmailNotification { get; set; }
-        
-        [DisplayName("Confirmo ser um profissional da saúde.")]
-        public bool IsHealthProfessional { get; set; }
 
         [DisplayName("Aceito o Termo de Consentimento da plataforma.")]        
         public bool AcceptsTermUse { get; set; }
 
 
-        [Required(ErrorMessage = "Campo obrigatório")]
         [DisplayName("Código SAP")]
         [StringLength(200)]
         public string CodigoSAP { get; set; }
+
+        public string ClientType { get; set; }
 
     }
 }

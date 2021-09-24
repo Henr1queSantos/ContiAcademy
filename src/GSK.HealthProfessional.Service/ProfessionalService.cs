@@ -35,17 +35,9 @@ namespace GSK.HealthProfessional.Service
         }
 
 
-        public bool Add(HealthProfessionalModel professional)
+        public bool Add(HealthProfessionalModel professional, out string message)
         {
             var error = "";
-
-            if (professional.CompanyId != Convert.ToString((int)CompanyModel.ComapanysEnum.Outro) && !HasBusinessUnit(professional.CompanyId))
-            {
-                error = $"Não foi possível cadastrar o usuário, empresa inválida";
-                Notify(error);
-                _logger.LogError(error);
-                return false;
-            }
 
             var integrationClientUniqueIdentifier = _configuration.GetSection("AppSettings:IntegrationClientUI").Value;
             var IntegrationClientSecret = _configuration.GetSection("AppSettings:IntegrationClientSecret").Value;
@@ -60,7 +52,7 @@ namespace GSK.HealthProfessional.Service
             string[] name = professional.Name.Split(' ');
             string firtName = professional.Name;
             Array.Reverse(name);
-            string lastName = " ";
+            string lastName = professional.Sobrenome;
 
             if (string.IsNullOrWhiteSpace(lastName))
                 lastName = ".";
@@ -75,7 +67,8 @@ namespace GSK.HealthProfessional.Service
                 Login = professional.Email,
                 Email = professional.Email,
                 ForcePasswordChange = false,
-                TermsOfUseAcceptance = -1
+                TermsOfUseAcceptance = -1,
+                Suspense = professional.CodigoSAP == null ? true : false
             });
             IRestResponse response = client.Execute(request);
 
@@ -85,28 +78,31 @@ namespace GSK.HealthProfessional.Service
                 var objReturn = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(response.Content);
                 if (objReturn.ResultCode < 0)
                 {
+                    
                     error = $"Não foi possível cadastrar o usuário: Erro:{objReturn.ResultCode.ToString()} - {objReturn.Message} ";
                     Notify(error);
                     _logger.LogError(error);
                 }
                 else
                 {
-                    if (BusinessUnitImport(professional.CompanyId.ToString(), professional.CompanyDescription,
-                        professional.CityDescription, professional.CityId, professional.StateDescription,
-                        professional.StateId, businessUnitUI))
+                    //if (BusinessUnitImport(professional.CompanyId.ToString(), professional.CompanyDescription,
+                    //    professional.CityDescription, professional.CityId, professional.StateDescription,
+                    //    professional.StateId, businessUnitUI))
 
-                        if (LinkUserToCompany(professional.Email, professional.CityId, professional.OccupationAreaClientUniqueIdentifier, professional.CouncilNumber))
-                        {
-                            _professionalRepository.Add(professional);
-                            return true;
-                        }
+                    //    if (LinkUserToCompany(professional.Email, professional.CityId, professional.OccupationAreaClientUniqueIdentifier, professional.CouncilNumber))
+                    //    {
+                    //        _professionalRepository.Add(professional);
+                    //        return true;
+                    //    }
                 }
+                message = objReturn.Message;
             }
             else
             {
                 error = $"Não foi possível cadastrar o usuário: httpError{response.StatusCode}  Erro: {response.Content} ";
                 Notify(error);
                 _logger.LogError(error);
+                message = response.Content;
             }
 
             return false;

@@ -57,30 +57,35 @@ namespace GSK.HealthProfessional.WebApp.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.CompanyId = _companyService.GetAll().Select(c => new SelectListItem() { Text = c.Description, Value = c.CompanyId.ToString(), Selected = (c.CompanyId.ToString() == professional.CompanyId) }).ToList();                
-                ViewBag.OccupationAreaID = _occupationAreaService.GetProfile().Select(c => new SelectListItem() { Text = c.Name, Value = c.ClientUniqueIdentifier }).ToList();
-                ViewBag.StateId = _stateService.GetAll().Select(c => new SelectListItem() { Text = c.Description, Value = c.StateId, Selected = (c.StateId == professional.StateId) }).ToList();
                 return View("Index", professional);
             }
-
-            _professionalService.Add(professional);
-
-            if (!ValidOperation())
+            if (professional.CodigoSAP == null && professional.ClientType == "ClienteContinental")
             {
-                ViewBag.CompanyId = _companyService.GetAll().Select(c => new SelectListItem() { Text = c.Description, Value = c.CompanyId.ToString(), Selected = (c.CompanyId.ToString() == professional.CompanyId) }).ToList();                
-                ViewBag.OccupationAreaID = _occupationAreaService.GetProfile().Select(c => new SelectListItem() { Text = c.Name, Value = c.ClientUniqueIdentifier }).ToList();
-                ViewBag.StateId = _stateService.GetAll().Select(c => new SelectListItem() { Text = c.Description, Value = c.StateId, Selected = (c.StateId == professional.StateId) }).ToList();
-                ViewBag.CityId = _cityService.GetByStateId(professional.CityId).Select(c => new SelectListItem() { Text = c.Nome, Value = c.Nome, Selected = (c.Nome == professional.CityId) }).ToList();
-
-                foreach (var item in _notifier.GetNotifications())
-                {
-                    ModelState.AddModelError("", item.Message);
-                }
-
+                ModelState.AddModelError("", "Para opção Cliente Continental é obrigatório informar o campo Código SAP");
                 return View("Index", professional);
             }
 
-            ViewBag.Url = _configuration.GetSection("AppSettings:UrlApiNeolude").Value;
+            professional.CodigoSAP = professional.ClientType == "ClienteExterno" ? null : professional.CodigoSAP;
+
+            string message;
+
+            _professionalService.Add(professional, out message);
+
+            if (message == "E-mail já existente")
+            {
+                ViewBag.Error = "O E-mail informado já existe na plataforma clique aqui para redefinir sua senha";
+                return View("Index", professional);
+            }
+
+            if (professional.CodigoSAP == null)
+            {
+                ViewBag.ClienteExternoMessage = "Cadastrado efetuado com sucesso, Por favor aguarde o administrador da plataforma liberar o acesso de seu usuário";
+            }
+            else
+            {
+                ViewBag.Url = _configuration.GetSection("AppSettings:UrlApiNeolude").Value;
+            }
+
             return View("Index", professional);
         }
 
