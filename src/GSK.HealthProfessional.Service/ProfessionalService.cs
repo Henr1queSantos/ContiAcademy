@@ -68,8 +68,10 @@ namespace GSK.HealthProfessional.Service
                 Email = professional.Email,
                 ForcePasswordChange = false,
                 TermsOfUseAcceptance = -1,
-                Suspense = professional.CodigoSAP == null ? true : false
-            });
+                Suspense = professional.CodigoSAP == null ? true : false,
+                SendEmail = true,
+                Destinatario = _configuration.GetSection("AppSettings:Destinatario").Value
+        });
             IRestResponse response = client.Execute(request);
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
