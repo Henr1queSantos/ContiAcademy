@@ -94,6 +94,10 @@ namespace GSK.HealthProfessional.Service
 
                             }
                     }
+                    else
+                    {
+                        InativeUser(professional.Email);
+                    }
                 }
 
                 message = objReturn.Message;
@@ -221,8 +225,6 @@ namespace GSK.HealthProfessional.Service
                 _logger.LogError(error);
             }
 
-
-
             return false;
 
         }
@@ -259,6 +261,53 @@ namespace GSK.HealthProfessional.Service
             name = string.Empty;
             return false;
 
+        }
+
+        public bool InativeUser(string email)
+        {
+
+            var error = "";
+            var integrationClientUniqueIdentifier = _configuration.GetSection("AppSettings:IntegrationClientUI").Value;
+            var IntegrationClientSecret = _configuration.GetSection("AppSettings:IntegrationClientSecret").Value;
+            var ticks = DateTime.Now.Ticks.ToString();
+
+            var integrationToken = AuthenticationApiService.GenerateToken(integrationClientUniqueIdentifier, IntegrationClientSecret, ticks);
+            var action = string.Format("/api/integration/UserIntegration/InativeUser/?ticks={0}&clientIdentifier={1}", ticks, integrationClientUniqueIdentifier);
+            var client = new RestClient(_urlApiNeolude);
+            var request = new RestRequest(action, Method.POST);
+            request.AddHeader("Content-Type", "application/json");
+
+            request.AddJsonBody(
+            new
+            {
+                ClientUniqueIdentifier = email,
+                Motive = "Custom Cliente Externo",
+                Feedback = "Custom Cliente Externo",
+                Token = integrationToken
+            });
+
+            IRestResponse response = client.Execute(request);
+
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var objReturn = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(response.Content);
+                if (objReturn.ResultCode < 0)
+                {
+                    error = $"Não conseguiu inativar o usuário: Erro: { objReturn.ResultCode.ToString()}- { objReturn.Message}";
+                    Notify(error);
+                    _logger.LogError(error);
+                }
+                else
+                    return true;
+            }
+            else
+            {
+                error = $"Não conseguiu inativar o usuário: Erro:{response.StatusCode} - {response.Content}";
+                Notify(error);
+                _logger.LogError(error);
+            }
+
+            return true;
         }
 
     }
