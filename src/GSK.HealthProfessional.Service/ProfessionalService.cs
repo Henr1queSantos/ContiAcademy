@@ -87,16 +87,15 @@ namespace GSK.HealthProfessional.Service
                 }
                 else
                 {
-                    //if (BusinessUnitImport(professional.CompanyId.ToString(), professional.CompanyDescription,
-                    //    professional.CityDescription, professional.CityId, professional.StateDescription,
-                    //    professional.StateId, businessUnitUI))
+                    if (professional.CodigoSAP != null)
+                    {
+                            if (LinkUserToCompany(professional.Email, professional.CodigoSAP, professional.CodigoSAP, string.Empty))
+                            {
 
-                    //    if (LinkUserToCompany(professional.Email, professional.CityId, professional.OccupationAreaClientUniqueIdentifier, professional.CouncilNumber))
-                    //    {
-                    //        _professionalRepository.Add(professional);
-                    //        return true;
-                    //    }
+                            }
+                    }
                 }
+
                 message = objReturn.Message;
             }
             else
@@ -194,10 +193,11 @@ namespace GSK.HealthProfessional.Service
                 UserClientUniqueIdentifier = email,
                 BusinessUnitClientUniqueIdentifier = businessUnitCUI,
                 OccupationAreaClientUniqueIdentifier = occupationAreaClientUI,
-                PositionName = "Medicina Personalizada",
+                PositionName = "FUNCIONÁRIO REVENDA",
                 AdmissionDate = DateTime.Now.Date.ToString("yyyy-MM-dd"),
                 StateIdentifier = "ACTIVE",
-                Token = integrationToken
+                Token = integrationToken,
+                CustomClient = true
             });
 
             IRestResponse response = client.Execute(request);
@@ -227,7 +227,7 @@ namespace GSK.HealthProfessional.Service
 
         }
 
-        public bool HasBusinessUnit(string companyId)
+        public bool HasCodigoSAP(string CodigoSAP, out string name)
         {
             var error = "";
             var integrationClientUniqueIdentifier = _configuration.GetSection("AppSettings:IntegrationClientUI").Value;
@@ -246,15 +246,17 @@ namespace GSK.HealthProfessional.Service
             {
 
                 var getCompany = Newtonsoft.Json.JsonConvert.DeserializeObject<BusinessUnitIntegrationModel>(response.Content)
-                    .AditionalInformation.Where(w => w.NeoludeID == Convert.ToInt64(companyId)).FirstOrDefault();
+                    .AditionalInformation.Where(w => w.ClientUniqueIdentifier == CodigoSAP).FirstOrDefault();
 
                 if (getCompany != null)
                 {
+                    name = getCompany.Name;
                     return true;
                 }
 
             }
 
+            name = string.Empty;
             return false;
 
         }

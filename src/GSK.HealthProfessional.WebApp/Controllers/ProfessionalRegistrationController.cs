@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Linq;
+using System.Web.Mvc;
 using GSK.HealthProfessional.Service;
 using GSK.HealthProfessional.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
+using RestSharp;
 
 namespace GSK.HealthProfessional.WebApp.Controllers
 {
@@ -36,10 +38,6 @@ namespace GSK.HealthProfessional.WebApp.Controllers
         }
         public IActionResult Index()
         {
-            ViewBag.CompanyId = _companyService.GetAll().Select(c => new SelectListItem() { Text = c.Description, Value = c.CompanyId.ToString() }).ToList();
-            ViewBag.OccupationAreaID = _occupationAreaService.GetProfile().Select(c => new SelectListItem() { Text = c.Name, Value = c.ClientUniqueIdentifier }).ToList();
-            ViewBag.StateId = _stateService.GetAll().Select(c => new SelectListItem() { Text = c.Description, Value = c.StateId }).ToList();
-
             return View();
         }
 
@@ -51,10 +49,21 @@ namespace GSK.HealthProfessional.WebApp.Controllers
             return null;
         }
 
-        [HttpPost]
+        [System.Web.Mvc.HttpPost]
         //[ValidateAntiForgeryToken]
         public IActionResult Create(Model.HealthProfessionalModel professional)
         {
+            string name = string.Empty;
+            if (professional.CodigoSAP != null)
+            {
+                if (!_professionalService.HasCodigoSAP(professional.CodigoSAP, out name))
+                {
+                    ModelState.AddModelError("", "Código SAP inválido");
+                    return View("Index", professional);
+                }
+                
+            }
+
             if (!ModelState.IsValid)
             {
                 return View("Index", professional);
@@ -73,7 +82,7 @@ namespace GSK.HealthProfessional.WebApp.Controllers
 
             if (message == "E-mail já existente")
             {
-                ViewBag.Error = "O E-mail informado já existe na plataforma clique aqui para redefinir sua senha";
+                ViewBag.Error = "O E-mail informado já existe clique aqui para voltar a tela de login e clique na opção (Esqueci minha senha)";
                 return View("Index", professional);
             }
 
@@ -87,6 +96,20 @@ namespace GSK.HealthProfessional.WebApp.Controllers
             }
 
             return View("Index", professional);
+        }
+
+        public Microsoft.AspNetCore.Mvc.JsonResult GETBU(string codigo) 
+        {
+            string name = string.Empty;
+
+            _professionalService.HasCodigoSAP(codigo, out name);
+
+            if (string.IsNullOrEmpty(name))
+            {
+                name = "Código SAP inválido";
+            }
+
+            return Json(name);
         }
 
     }

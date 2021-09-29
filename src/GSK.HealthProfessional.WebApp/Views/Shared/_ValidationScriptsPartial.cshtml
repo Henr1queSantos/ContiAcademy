@@ -51,6 +51,8 @@
         min: jQuery.validator.format("Por favor, forneça um valor maior ou igual a {0}.")
     });
 
+
+
     $(document).ready(function () {
         $('input:radio[name=ClientType]').change(function () {
             if (this.value == 'ClienteContinental') {
@@ -59,6 +61,21 @@
             else if (this.value == 'ClienteExterno') {
                 $("#CodigoSAP").hide();
             }
+        });
+
+        $('input[name=CodigoSAP]').change(function () {
+            debugger;
+
+            var DataToSend = $('#InputCodigo').val();
+            $.ajax({
+                url: '/ProfessionalRegistration/GETBU',
+                data: { codigo: DataToSend },
+                cache: false,
+                success: function (result) {
+                    debugger;
+                    $("#nameBU").text(result);
+                }
+            });
         });
     });
 
