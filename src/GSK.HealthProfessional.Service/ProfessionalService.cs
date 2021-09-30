@@ -89,10 +89,7 @@ namespace GSK.HealthProfessional.Service
                 {
                     if (professional.CodigoSAP != null)
                     {
-                            if (LinkUserToCompany(professional.Email, professional.CodigoSAP, professional.CodigoSAP, string.Empty))
-                            {
-
-                            }
+                        LinkUserToCompany(professional.Email, professional.CodigoSAP, professional.CodigoSAP, string.Empty);
                     }
                     else
                     {
@@ -282,7 +279,7 @@ namespace GSK.HealthProfessional.Service
             {
                 ClientUniqueIdentifier = email,
                 Motive = "Custom Cliente Externo",
-                Feedback = "Custom Cliente Externo",
+                Feedback = "Seu acesso encontra pendente para desbloqueio, por favor entre em contato com o administrador da plataforma",
                 Token = integrationToken
             });
 
