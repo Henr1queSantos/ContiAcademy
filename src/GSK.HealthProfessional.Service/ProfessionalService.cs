@@ -19,19 +19,22 @@ namespace GSK.HealthProfessional.Service
         private readonly AuthenticationApiService _authenticationAPIService;
         private readonly IProfessionalRepository _professionalRepository;
         private readonly ILogger<DebugLogger> _logger;
+        private readonly IOccupationAreaService _occupationAreaService;
 
 
         public ProfessionalService(IConfiguration configuration,
                                     AuthenticationApiService authenticationAPIService,
                                     IProfessionalRepository professionalRepository,
                                     ILogger<DebugLogger> logger,
-                                    INotifier notificador) : base(notificador)
+                                    INotifier notificador,
+                                    IOccupationAreaService occupationAreaService) : base(notificador)
         {
             _configuration = configuration;
             _urlApiNeolude = _configuration.GetSection("AppSettings").GetSection("UrlApiNeolude").Value;
             _authenticationAPIService = authenticationAPIService;
             _professionalRepository = professionalRepository;
             _logger = logger;
+            _occupationAreaService = occupationAreaService;
         }
 
 
@@ -89,7 +92,9 @@ namespace GSK.HealthProfessional.Service
                 {
                     if (professional.CodigoSAP != null)
                     {
-                        LinkUserToCompany(professional.Email, professional.CodigoSAP, professional.CodigoSAP, string.Empty);
+                        var model = _occupationAreaService.GetProfile().Where( x => x.CodigoSAP.ToString() == professional.CodigoSAP).FirstOrDefault();
+
+                        LinkUserToCompany(professional.Email, string.Empty, model);
                     }
                     else
                     {
@@ -173,7 +178,7 @@ namespace GSK.HealthProfessional.Service
 
 
 
-        public bool LinkUserToCompany(string email, string businessUnitCUI, string occupationAreaClientUI, string registrationNumber)
+        public bool LinkUserToCompany(string email, string registrationNumber, OccupationAreaModel occupationAreaModel)
         {
 
             var error = "";
@@ -192,13 +197,13 @@ namespace GSK.HealthProfessional.Service
             {
                 RegistrationNumber = registrationNumber,
                 UserClientUniqueIdentifier = email,
-                BusinessUnitClientUniqueIdentifier = businessUnitCUI,
-                OccupationAreaClientUniqueIdentifier = occupationAreaClientUI,
-                PositionName = "FUNCIONÁRIO REVENDA",
+                BusinessUnitClientUniqueIdentifier = occupationAreaModel.CodigoSAP,
+                OccupationAreaClientUniqueIdentifier = occupationAreaModel.Perfil,
+                PositionName = occupationAreaModel.Cargo,
+                DirectSuperiorClientUniqueIdentifier = occupationAreaModel.Gestor,
                 AdmissionDate = DateTime.Now.Date.ToString("yyyy-MM-dd"),
                 StateIdentifier = "ACTIVE",
                 Token = integrationToken,
-                CustomClient = true
             });
 
             IRestResponse response = client.Execute(request);

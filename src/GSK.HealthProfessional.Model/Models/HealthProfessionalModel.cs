@@ -45,9 +45,12 @@ namespace GSK.HealthProfessional.Model
         [StringLength(20, ErrorMessage = "A confirmação de senha precisa ter mais de 5 caracteres.", MinimumLength = 5)]
         [Compare("Password", ErrorMessage="O campo senha e confirmação de senha não combinam.")]
         public string PasswordConfirmation { get; set; }
-        
 
-        [DisplayName("Aceito o Termo de Consentimento da plataforma.")]        
+
+        [DisplayName("Declaro meu consentimento para o processamento dos dados pessoais fornecidos por mim para obtenção de informações e serviços solicitados.")]
+        public bool Consentimento { get; set; }
+
+        [DisplayName("Ao informar meus dados, eu concordo com o Aviso de Proteção de Dados.")]        
         public bool AcceptsTermUse { get; set; }
 
 

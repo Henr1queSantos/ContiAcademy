@@ -197,6 +197,11 @@
             <div class="col s12 m12">
 
                 <p>
+                    <input asp-for="Consentimento" />
+                    <label for="Consentimento">@Html.DisplayNameFor(model => model.Consentimento)</label>
+                </p>
+
+                <p>
                     <input class="form-check-input" data-toggle="modal" asp-for="AcceptsTermUse" />
                     <label for="AcceptsTermUse">@Html.DisplayNameFor(model => model.AcceptsTermUse)</label>
                 </p>
